@@ -1,25 +1,33 @@
-# Используем старый, совместимый образ TensorFlow
+# Используем образ с GPU
 FROM tensorflow/tensorflow:2.11.0-gpu
 
-# Устанавливаем рабочую директорию
+# Устанавливаем системные зависимости
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Устанавливаем все необходимые библиотеки в одну команду
-# Это помогает избежать конфликтов версий
-RUN pip install --no-cache-dir \
+# Исправленная установка библиотек
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
     tensorflow==2.11.0 \
+    numpy==1.24.4 \
     pandas==2.0.3 \
     scikit-learn==1.3.2 \
-    numpy==1.24.4 \
     joblib==1.3.2 \
+    matplotlib==3.7.5 \
+    shap==0.41.0 \
     streamlit \
-    Flask \
-    gunicorn \
-    shap \
-    matplotlib \
-    protobuf==3.20.0 \
+    fastapi \
+    uvicorn \
+    pydantic \
     tqdm \
     fpdf
 
-# Копируем файлы в рабочую директорию
+# Копируем проект
 COPY . /app
+
+# Открываем порты
+EXPOSE 8501 8000

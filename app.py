@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+if not hasattr(np, 'int'):
+    np.int = int
 import joblib
 import shap
 import tensorflow as tf
