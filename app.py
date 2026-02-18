@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import shap
 import tensorflow as tf
 from tensorflow import keras
 from pdf_generator import export_to_pdf
@@ -517,6 +518,58 @@ if st.button('РАССЧИТАТЬ ПРЕДВАРИТЕЛЬНЫЙ ДИАГНОЗ
         diagnosis_2_display = format_diagnosis(diagnosis_2_key)
         prob_2 = top_2_probabilities[1]
         st.info(f"**Предварительный Диагноз 2 (Дифференциальный):** {diagnosis_2_display} — {prob_2*100:.1f}%")
+
+        # --- ИНТЕГРАЦИЯ SHAP В APP.PY ---
+    st.markdown("### 🔍 Интерпретация решения")
+    with st.expander("Анализ влияния симптомов на диагноз"):
+        try:
+            import shap
+            import matplotlib.pyplot as plt
+            from sklearn.linear_model import LinearRegression
+
+                    # 1. Функция-предиктор
+            def map_predict(x):
+            # verbose=0 убирает лишний лог в консоль сервера
+                preds = model.predict(x, verbose=0)
+                return preds[:, top_2_indices[0]]
+
+                    # 2. Фоновое состояние
+            background = np.zeros((1, len(TRAINING_FEATURES)))
+                    
+                    # 3. Инициализируем Explainer
+            explainer = shap.KernelExplainer(map_predict, background)
+                    
+                    # 4. РАСЧЕТ С ИСПРАВЛЕНИЕМ ОШИБКИ: 
+                    # Мы указываем l1_reg="num_features(10)", чтобы SHAP выбрал 10 главных признаков 
+                    # и не пытался строить сложную Lasso-модель на 150 признаках при 1 семпле.
+            shap_vals = explainer.shap_values(
+                processed_input, 
+                nsamples=100, 
+                l1_reg="num_features(10)"
+            )
+
+                    # 5. Визуализация
+            col_chart_1, col_chart_2, col_chart_3 = st.columns([1, 2, 1])
+            with col_chart_2:
+                fig, ax = plt.subplots(figsize=(6, 4))
+                    
+                    # Отрисовка
+                shap.summary_plot(
+                    shap_vals, 
+                    processed_input, 
+                    feature_names=TRAINING_FEATURES, 
+                    plot_type="bar", 
+                    max_display=8, 
+                    show=False
+                )
+                    
+                plt.title(f"Вклад признаков в диагноз: {diagnosis_1_key}")
+                plt.tight_layout()
+                st.pyplot(fig, use_container_width=True)
+            st.caption("График показывает 8 наиболее значимых симптомов для данного случая.")
+                
+        except Exception as e:
+            st.error(f"Ошибка SHAP: {e}")
 
     st.markdown('---')
     
