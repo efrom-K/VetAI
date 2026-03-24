@@ -4,19 +4,16 @@ services:
   vetai-app:
     build: .
     container_name: vetai-combined
-    # Пробрасываем порты как в твоих командах
     ports:
-      - "8000:8000" # API
-      - "8501:8501" # Streamlit
+      - "8000:8000"
+      - "8501:8501"
     volumes:
       - .:/app
-    # Важно для NUC: не даем процессу забрать всё
     deploy:
       resources:
         limits:
           memory: 2500M
     restart: always
-    # Команда запуска сразу двух сервисов
     command: >
       sh -c "uvicorn api:app --host 0.0.0.0 --port 8000 & 
              streamlit run app.py --server.port 8501 --server.address 0.0.0.0"
