@@ -13,8 +13,8 @@ jobs:
 
       - name: Build and Restart
         run: |
-          docker-compose build
-          docker-compose up -d
+          docker compose build
+          docker compose up -d
           
       - name: Cleanup
         run: docker image prune -f 
