@@ -1,0 +1,21 @@
+name: VetAI CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted  # Твой NUC подхватит задачу
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build and Restart
+        run: |
+          # Используем кэш, чтобы не перекачивать слои TF каждый раз
+          docker-compose build
+          docker-compose up -d
+          
+      - name: Cleanup
+        run: docker image prune -f  # Чистим старые слои, место на 1TB SSD не вечно
