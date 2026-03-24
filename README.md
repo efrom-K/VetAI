@@ -238,6 +238,12 @@ Switched to a persistence strategy that excludes optimizer graphs (include_optim
 * **Architecture:** x86_64 (AVX2 supported).
 
 ---
+### Roadmap
+* **[ ]** QA refactoring
+* **[ ]** system tests in clinical setup
+* **[ ]** API integration tests
+* **[ ]** API benchmark
+---
 
 ## 📬 Contacts & Scale-up
 VetAI is actively seeking partnerships with veterinary clinics for pilot implementation.
