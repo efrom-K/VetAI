@@ -23,3 +23,10 @@ checkpoint/
 static/tmp/
 
 .dockerignore
+
+# real patient/client data — never commit
+Медицина/
+карты/
+Карты-пациентов/
+*выписка*
+*medical_report*
